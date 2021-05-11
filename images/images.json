@@ -1,0 +1,82 @@
+[
+  {
+    "name": "aguila",
+    "img" : "../images/aguila.png"
+  },
+  {
+    "name": "caballo",
+    "img" : "../images/caballo.png"
+  },
+  {
+    "name": "cocodrilo",
+    "img" : "../images/cocodrilo.png"
+  },
+  {
+    "name": "conejo",
+    "img" : "../images/conejo.png"
+  },
+  {
+    "name": "elefante",
+    "img" : "../images/elefante.png"
+  },
+  {
+    "name": "langosta",
+    "img" : "../images/langosta.png"
+  },
+  {
+    "name": "leon",
+    "img" : "../images/leon.png"
+  },
+  {
+    "name": "pajaro",
+    "img" : "../images/pajaro.png"
+  },
+  {
+    "name": "pato",
+    "img" : "../images/pato.png"
+  },
+  {
+    "name": "tigre",
+    "img" : "../images/tigre.png"
+  },{
+    "name": "aguila",
+    "img" : "../images/aguila.png"
+  },
+  {
+    "name": "caballo",
+    "img" : "../images/caballo.png"
+  },
+  {
+    "name": "cocodrilo",
+    "img" : "../images/cocodrilo.png"
+  },
+  {
+    "name": "conejo",
+    "img" : "../images/conejo.png"
+  },
+  {
+    "name": "elefante",
+    "img" : "../images/elefante.png"
+  },
+  {
+    "name": "langosta",
+    "img" : "../images/langosta.png"
+  },
+  {
+    "name": "leon",
+    "img" : "../images/leon.png"
+  },
+  {
+    "name": "pajaro",
+    "img" : "../images/pajaro.png"
+  },
+  {
+    "name": "pato",
+    "img" : "../images/pato.png"
+  },
+  {
+    "name": "tigre",
+    "img" : "../images/tigre.png"
+  }
+
+]
