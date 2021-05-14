@@ -1,27 +1,13 @@
 (document.addEventListener('DOMContentLoaded', async () => {
 
       const resolv = await fetch('../images/images.json');
-      const images =  await resolv.json();
+      const imagen =  await resolv.json();
+
+      const images = [...imagen, ...imagen];
 
       images.sort( () => Math.random() - 0.5);
 
       console.log(images);
-
-      let cartaOne = {
-        nombre: "",
-        id: 0
-      }
-      
-      let cartaTwo = {
-        nombre: "",
-        id: 0
-      }
-      
-      let clic = 0;
-
-
-      
-
 
 
   const contenedor = document.querySelector(".contenedor");
@@ -29,16 +15,41 @@
       const crearCarta =  () => {
 
         for (let i = 0; i < images.length; i++) {
-            
-          let carta = document.createElement('img');
-              carta.setAttribute('src', '../images/fondo.png');
-              carta.setAttribute('data-id', i);
-              carta.setAttribute('height', "200px");
-              carta.setAttribute('width', "200px");
-              carta.addEventListener('click', voltearCarta);
+          let div = document.createElement('div');
+              div.setAttribute('class', 'carta');
+              
 
-              contenedor.appendChild(carta);
-          
+          let divCara = document.createElement('div');
+              divCara.setAttribute('class', 'cara');
+          let img1 = document.createElement('img');
+              img1.setAttribute('src', '../images/fondo.png');
+              img1.setAttribute('data-id', i);
+              img1.setAttribute('height', "200px");
+              img1.setAttribute('width', "200px");
+
+              divCara.appendChild(img1);
+              
+
+          let divDetras = document.createElement('div');
+              divDetras.setAttribute('class', 'detras');
+                               
+          let img2 = document.createElement('img');
+              img2.setAttribute('src', images[i].img);
+              img2.setAttribute('data-id', i);
+              img2.setAttribute('name', images[i].name);
+              img2.setAttribute('height', "200px");
+              img2.setAttribute('width', "200px");
+
+              divDetras.appendChild(img2);
+
+              div.appendChild(divCara);
+              div.appendChild(divDetras);
+
+
+              div.addEventListener('click', voltearCarta);
+
+              contenedor.appendChild(div);
+
         }
       }
 
@@ -46,25 +57,23 @@
 
 
       const voltearCarta = (e) => {
+        
         let element = e.target;
         
-
-
+        const divCarta = element.parentElement.parentElement;
+      
+          divCarta.setAttribute('class', 'carta cartaEfecto');
+          
         const idCarta = element.getAttribute('data-id');
 
         if(comparar.length === 0 ){
-
+          
           comparar[0] =  {
             nombre : images[idCarta].name,
             id: idCarta
           }
-
-          element.setAttribute('src', images[idCarta].img);
-          element.setAttribute('name', images[idCarta].name);
-
-          element.setAttribute('height', "200px");
-          element.setAttribute('width', "200px");
-
+          
+          
 
         }else if(comparar.length === 1 ){
         
@@ -73,30 +82,17 @@
             id: idCarta
           }
 
-          //llamar funcion para quitar evento
-          element.setAttribute('src', images[idCarta].img);
-          element.setAttribute('name', images[idCarta].name);
-
-          element.setAttribute('height', "200px");
-          element.setAttribute('width', "200px");
-
           compararCartas(e);
 
-        }else
-         if (comparar.length === 2 ){
+        }else if(comparar.length === 2 ){
 
 
-resetearSeleccion();
           comparar[0] =  {
             nombre : images[idCarta].name,
             id: idCarta
           }
 
-          element.setAttribute('src', images[idCarta].img);
-          element.setAttribute('name', images[idCarta].name);
-
-          element.setAttribute('height', "200px");
-          element.setAttribute('width', "200px");
+         
          
         }
 
@@ -107,20 +103,22 @@ resetearSeleccion();
 
       const compararCartas = (e)  => {
 
-        let element = e.target;
+        let element = e.target.parentElement.parentElement;
 
         if(comparar.length === 2){
 
             if(comparar[0].id === comparar[1].id){
-                console.log("seleccionaste la misma carta");
-                element.setAttribute('src', '../images/fondo.png');
-                resetearSeleccion();
+                
+                restaurarCartas();
+                
               }else if(comparar[0].nombre === comparar[1].nombre){
                 console.log("las cartas coinsiden");
                 
                 guardarCoinsidencia();
           
               }else{
+                console.log("no son iuales");
+
                 setTimeout(restaurarCartas, 1000);
       
               }
@@ -136,15 +134,26 @@ resetearSeleccion();
 
       const restaurarCartas = () => {
 
-        const cards = document.querySelectorAll('img');
+        if(comparar[0].id === comparar[1].id){
+          const element = document.getElementsByName(comparar[0].nombre);
+          const carta1 = element[0].parentElement.parentElement;
+          
+          carta1.removeAttribute('class', 'cartaEfecto');
+          carta1.setAttribute('class', 'carta');
 
-        if(comparar.length === 2){
+        }else{
 
-        cards[comparar[0].id].setAttribute('src', '../images/fondo.png');
-        cards[comparar[1].id].setAttribute('src', '../images/fondo.png');
-        
-        resetearSeleccion();
+          const element = document.querySelectorAll('.cartaEfecto');
+                  
+          element[0].removeAttribute('class', 'cartaEfecto');
+          element[0].setAttribute('class', 'carta');
+
+          element[1].removeAttribute('class', 'cartaEfecto');
+          element[1].setAttribute('class', 'carta');
         }
+
+        comparar = [];
+        
       }
 
 
@@ -152,66 +161,28 @@ resetearSeleccion();
 
       const guardarCoinsidencia = () => {
 
-        const card = document.getElementsByName(cartaOne.nombre); 
+        const card= document.getElementsByName(comparar[0].nombre);
 
         card[0].removeEventListener('click', voltearCarta);
         card[1].removeEventListener('click', voltearCarta);
 
-
-       /*  const id1 = card[0].getAttribute('data-id');
-        const id2 = card[1].getAttribute('data-id'); */
-        resetearSeleccion();
+        comparar = [];
         
       }
 
       const resetearSeleccion = () => {
-
-        const cards = document.querySelectorAll('img');
-
-        cards[comparar[0].id].setAttribute('src', '../images/fondo.png');
-        cards[comparar[1].id].setAttribute('src', '../images/fondo.png');
+console.log(comparar);
+        const cards = document.querySelectorAll('.cartaEfecto');
+console.log(cards);
+        cards[0].removeAttribute('class', 'cartaEfecto');
+        cards[1].removeAttribute('class', 'cartaEfecto');
        comparar = [];
 
   
      }
 
 
-
-
-
-
-
       crearCarta();
   
-
-     /*  const  quitarEventos = () => {
-        const etiquetas = document.querySelectorAll('img');
-
-        for (let i = 0; i < etiquetas.length; i++) {
-          
-          etiquetas[i].removeEventListener('click', voltearCarta);
-          
-        }
-
-      } */
-
-      /* const  agregarEventos = () => {
-        const etiquetas = document.querySelectorAll('img');
-
-        for (let i = 0; i < etiquetas.length; i++) {
-          
-          etiquetas[i].addEventListener('click', voltearCarta);
-          
-        }
-
-      }
-
-      agregarEventos(); */
-
-    
- 
-
-
-
   
 }))
