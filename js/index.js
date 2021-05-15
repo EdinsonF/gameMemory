@@ -55,8 +55,10 @@
 
     let comparar = [];
 
-
+ let res;
       const voltearCarta = (e) => {
+
+       
         
         let element = e.target;
         
@@ -70,31 +72,58 @@
           
           comparar[0] =  {
             nombre : images[idCarta].name,
-            id: idCarta
+            id: idCarta,
+            div: divCarta
           }
-          
+         
+
           
 
         }else if(comparar.length === 1 ){
         
           comparar[1] =  {
             nombre : images[idCarta].name,
-            id: idCarta
+            id: idCarta,
+            div: divCarta
           }
 
-          compararCartas(e);
+          divCarta.removeEventListener('click',voltearCarta);
+          console.log(divCarta);
+
+
+          res = compararCartas(e);
 
         }else if(comparar.length === 2 ){
+
+          console.log(res);
+
+          if(res === false){
+            comparar[0].div.removeAttribute('class', 'cartaEfecto');
+            comparar[0].div.setAttribute('class', 'carta');
+
+            comparar[1].div.removeAttribute('class', 'cartaEfecto');
+            comparar[1].div.setAttribute('class', 'carta');
+            comparar[1].div.addEventListener('click', voltearCarta);
+
+
+
+          }
+         
+          comparar = [];
 
 
           comparar[0] =  {
             nombre : images[idCarta].name,
-            id: idCarta
+            id: idCarta,
+            div: divCarta
           }
 
          
          
         }
+
+
+
 
         console.log(comparar);
 
@@ -106,6 +135,7 @@
         let element = e.target.parentElement.parentElement;
 
         if(comparar.length === 2){
+          console.log("entro");
 
             if(comparar[0].id === comparar[1].id){
                 
@@ -115,11 +145,15 @@
                 console.log("las cartas coinsiden");
                 
                 guardarCoinsidencia();
+
+                return true;
           
               }else{
                 console.log("no son iuales");
 
                 setTimeout(restaurarCartas, 1000);
+
+                return false; 
       
               }
         }
@@ -133,26 +167,36 @@
 
 
       const restaurarCartas = () => {
+console.log(comparar.length);
+        if(comparar.length === 2){
 
-        if(comparar[0].id === comparar[1].id){
-          const element = document.getElementsByName(comparar[0].nombre);
-          const carta1 = element[0].parentElement.parentElement;
+          if(comparar[0].id === comparar[1].id){
+            const element = document.getElementsByName(comparar[0].nombre);
+            const carta1 = element[0].parentElement.parentElement;
+            
+            carta1.removeAttribute('class', 'cartaEfecto');
+            carta1.setAttribute('class', 'carta');
+            comparar[1].div.addEventListener('click', voltearCarta);
+
+  
+          }else{
+  
+            
+                    
+            comparar[0].div.removeAttribute('class', 'cartaEfecto');
+            comparar[0].div.setAttribute('class', 'carta');
+  
+            comparar[1].div.removeAttribute('class', 'cartaEfecto');
+            comparar[1].div.setAttribute('class', 'carta');
+            comparar[1].div.addEventListener('click', voltearCarta);
+  
+          }
+  
+          comparar = [];
           
-          carta1.removeAttribute('class', 'cartaEfecto');
-          carta1.setAttribute('class', 'carta');
 
-        }else{
-
-          const element = document.querySelectorAll('.cartaEfecto');
-                  
-          element[0].removeAttribute('class', 'cartaEfecto');
-          element[0].setAttribute('class', 'carta');
-
-          element[1].removeAttribute('class', 'cartaEfecto');
-          element[1].setAttribute('class', 'carta');
         }
 
-        comparar = [];
         
       }
 
@@ -161,25 +205,10 @@
 
       const guardarCoinsidencia = () => {
 
-        const card= document.getElementsByName(comparar[0].nombre);
-
-        card[0].removeEventListener('click', voltearCarta);
-        card[1].removeEventListener('click', voltearCarta);
-
-        comparar = [];
+        comparar[0].div.removeEventListener('click', voltearCarta);
+        comparar[1].div.removeEventListener('click', voltearCarta);
         
       }
-
-      const resetearSeleccion = () => {
-console.log(comparar);
-        const cards = document.querySelectorAll('.cartaEfecto');
-console.log(cards);
-        cards[0].removeAttribute('class', 'cartaEfecto');
-        cards[1].removeAttribute('class', 'cartaEfecto');
-       comparar = [];
-
-  
-     }
 
 
       crearCarta();
