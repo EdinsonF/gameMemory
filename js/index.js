@@ -1,5 +1,29 @@
 (document.addEventListener('DOMContentLoaded', async () => {
+  let usuarios = [];
+  let usuarioLog;
 
+  let btnRegistrar = document.querySelector("#registrar");
+
+    const registrarUsuario = (e) => {
+      e.preventDefault();
+      const usuario = document.querySelector("#usuario");
+      let resultado = document.querySelector(".usuario");
+      resultado.innerHTML = "";
+
+      if(usuario.value !== ""){
+          usuarioLog = usuario.value;
+          let div = document.createElement('div');
+          div.innerText = `${usuario.value}` ;
+          
+          resultado.appendChild(div);
+          btnRegistrar.setAttribute('disabled', true);
+          usuario.value = "";
+          mostrarCartas();
+      }
+
+    }
+      btnRegistrar.addEventListener('click', registrarUsuario);
+ 
       const resolv = await fetch('../images/images.json');
       const imagen =  await resolv.json();
 
@@ -7,7 +31,7 @@
 
       images.sort( () => Math.random() - 0.5);
 
-      console.log(images);
+  
 
 
   const contenedor = document.querySelector(".contenedor");
@@ -22,10 +46,10 @@
           let divCara = document.createElement('div');
               divCara.setAttribute('class', 'cara');
           let img1 = document.createElement('img');
-              img1.setAttribute('src', '../images/fondo.png');
+              img1.setAttribute('src', '../images/tapa.gif');
               img1.setAttribute('data-id', i);
-              img1.setAttribute('height', "200px");
-              img1.setAttribute('width', "200px");
+              img1.setAttribute('height', "123px");
+              img1.setAttribute('width', "123px");
 
               divCara.appendChild(img1);
               
@@ -37,26 +61,52 @@
               img2.setAttribute('src', images[i].img);
               img2.setAttribute('data-id', i);
               img2.setAttribute('name', images[i].name);
-              img2.setAttribute('height', "200px");
-              img2.setAttribute('width', "200px");
+              img2.setAttribute('height', "123px");
+              img2.setAttribute('width', "123px");
 
               divDetras.appendChild(img2);
 
               div.appendChild(divCara);
               div.appendChild(divDetras);
 
-
-              div.addEventListener('click', voltearCarta);
-
               contenedor.appendChild(div);
 
-        }
+
+        } 
       }
 
+      const mostrarCartas = () => {
+
+        let todas = document.querySelectorAll('.carta');
+
+        setTimeout(() =>{
+          for (let j = 0; j < todas.length; j++) {
+              
+            todas[j].setAttribute('class', 'carta cartaEfecto');
+           
+        }
+        },100);
+
+        setTimeout(() =>{
+          for (let k = 0; k < todas.length; k++) {
+                
+            todas[k].setAttribute('class', 'carta');
+           
+        }
+        },3000);
+
+        habilitarEvento();
+      }
+
+
+      let encontradas = [];
       let comparar = [];
       let res;
       
       const voltearCarta = async (e) => {
+        if(encontradas.length !== 20){
+            IniciarCronometro();
+        }
         
         let element = e.target;
         
@@ -65,6 +115,7 @@
           divCarta.setAttribute('class', 'carta cartaEfecto');
           
         const idCarta = element.getAttribute('data-id');
+
 
         if(comparar.length === 0 ){
           
@@ -82,10 +133,9 @@
             div: divCarta
           }
 
+          comparar[0].div.removeEventListener('click',voltearCarta);
           divCarta.removeEventListener('click',voltearCarta);
-          console.log(divCarta);
 
-          res = compararCartas(e);
 
         }else if(comparar.length === 2 ){
 
@@ -94,7 +144,20 @@
             id: idCarta,
             div: divCarta
           }
-          console.log(res);          
+
+        }
+
+        //VERIFICAR CUANTAS CARTAS SE HAN VOLTEADOS
+
+        const res = await validarVolteadas();
+
+
+        if(res){
+          await compararCartas();
+        }else{
+          establecerAnteriores();
+        }
+          /* console.log(res);          
 
           if(res === false){
             comparar[0].div.removeAttribute('class', 'cartaEfecto');
@@ -115,57 +178,115 @@
                 div: divCarta
               }
               
-            }
-
-          }
-
+            } */
 
          
         }
 
+        const establecerAnteriores = () => {
+          let muestra = comparar[2];
+
+          if(comparar[0].nombre === comparar[1].nombre){
+            console.log(" coinsiden");
+
+            guardarCoinsidencia();
+
+            comparar[0] = muestra;
+          }else{
+              restaurarCartas();
+              comparar[0] = muestra;
+
+          }
+
+        }
 
 
 
-        console.log(comparar);
+        const validarVolteadas = () => {
 
-      }
+          let res = new Promise((resolve, reject) => {
+            
+            setTimeout(function(){
+              
+               if(comparar.length === 3){
+                resolve(false)
 
+               }else if(comparar.length === 2){
+                resolve(true)
+
+               }
+              
+            }, 250);
+          });
+
+
+          return res;
+
+        }
 
 
       const compararCartas = (e)  => {
 
-     
+        let res = new Promise((resolve, reject) => {
 
-        if(comparar.length === 2){
-          console.log("entro");
+          setTimeout(() => {
 
-            if(comparar[0].id === comparar[1].id){
-                
-                restaurarCartas();
-                
-              }else if(comparar[0].nombre === comparar[1].nombre){
-                console.log("las cartas coinsiden");
-                
-                guardarCoinsidencia();
+            if(comparar.length === 2){
 
-                return true;
+              deshabilitarEvento();
+    
+                if(comparar[0].id === comparar[1].id){
+                    
+                    restaurarCartas();
+                    
+                  }else if(comparar[0].nombre === comparar[1].nombre){
+                    console.log(" coinsiden");
+                    
+                    guardarCoinsidencia();
+
+                  }else{
+                    console.log("no coinsiden");
+    
+                    setTimeout(restaurarCartas, 200);
           
-              }else{
-                console.log("no son iuales");
+                  }
+            }
 
-                setTimeout(restaurarCartas, 1000);
-
-                return false; 
-      
-              }
-        }
-          
-  
-        
+          },300);
+        });
 
         
   
       }
+
+
+     const deshabilitarEvento = () => {
+
+      const event = document.querySelectorAll('.carta');
+      
+      for(let i =0; i<event.length; i++){
+
+        event[i].removeEventListener('click', voltearCarta);
+      }
+
+     }
+
+     const habilitarEvento = () => {
+
+      const event = document.querySelectorAll('.carta');
+      
+      for(let i =0; i<event.length; i++){
+
+        if(!event[i].classList.contains('encontrada')){
+
+              event[i].addEventListener('click', voltearCarta);
+
+        }
+
+        
+      }
+
+     }
 
 
       const restaurarCartas = () => {
@@ -175,57 +296,69 @@
           if(comparar[0].id === comparar[1].id){
             
             comparar[1].div.removeAttribute('class', 'cartaEfecto');
-            comparar[1].div.setAttribute('class', 'carta');
-            comparar[1].div.addEventListener('click', voltearCarta);
-
+            comparar[1].div.setAttribute('class', 'carta');      
   
           }else{
   
-            
-                    
             comparar[0].div.removeAttribute('class', 'cartaEfecto');
             comparar[0].div.setAttribute('class', 'carta');
+            comparar[1].div.removeAttribute('class', 'cartaEfecto');
+            comparar[1].div.setAttribute('class', 'carta');
   
+          }
+
+          habilitarEvento();
+
+
+        }else if(comparar.length ===3){
+            comparar[0].div.removeAttribute('class', 'cartaEfecto');
+            comparar[0].div.setAttribute('class', 'carta');
+            comparar[0].div.addEventListener('click', voltearCarta);
+
             comparar[1].div.removeAttribute('class', 'cartaEfecto');
             comparar[1].div.setAttribute('class', 'carta');
             comparar[1].div.addEventListener('click', voltearCarta);
-  
-          }
-  
-          if(comparar.length === 2){
-            comparar = [];
-          }
-          
-          
 
         }
+
+        comparar = [];
 
         
       }
 
 
 
-        let encontradas = [];
+        
 
       const guardarCoinsidencia = () => {
 
+//guardar el div en otro arreglo para evitar q le asigne el arreglo a ese.
 
         comparar[0].div.removeEventListener('click', voltearCarta);
+        comparar[0].div.setAttribute('class', 'carta cartaEfecto encontrada');
         comparar[1].div.removeEventListener('click', voltearCarta);
+        comparar[1].div.setAttribute('class', 'carta cartaEfecto encontrada');
 
-        encontradas.push({comparar});
+
+        encontradas.push(comparar[0] , comparar[1]);
         console.log(encontradas);
 
         comparar=[];
 
-        if(encontradas.length === 10){
-          alert("Felicitaciones");
+        habilitarEvento();
+        if(encontradas.length === 20){
+        let result = detenerCronometro();
+          
+          console.log("Felicitaciones, tu resultado es de :", result);
         }
         
       }
 
 
-      crearCarta();
-  
+  crearCarta();  
   
 }))
+
+
+
+
