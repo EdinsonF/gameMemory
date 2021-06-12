@@ -1,8 +1,10 @@
-(document.addEventListener('DOMContentLoaded', async () => {
+(document.addEventListener('DOMContentLoaded',  () => {
   let usuarios = [];
-  let usuarioLog;
+  let usuarioLog; 
 
   let btnRegistrar = document.querySelector("#registrar");
+
+ 
 
     const registrarUsuario = (e) => {
       e.preventDefault();
@@ -24,19 +26,83 @@
     }
       btnRegistrar.addEventListener('click', registrarUsuario);
  
-      const resolv = await fetch('../images/images.json');
-      const imagen =  await resolv.json();
+     
 
-      const images = [...imagen, ...imagen];
+      let divM = document.querySelector("#mostrar");
+    
+      const mostrarUsuarios = () => {
 
-      images.sort( () => Math.random() - 0.5);
+        usuarios = JSON.parse(localStorage.getItem("usuarios"));
+        if(usuarios === null){
+          localStorage.setItem("usuarios", JSON.stringify([]));
+
+        }else{
+          
+
+          //ordenar resultados
+          usuarios.sort((a,b) => {
+
+              if(a.puntaje < b.puntaje){
+                return -1;
+              }
+
+              if(a.puntaje > b.puntaje){
+                return 1;
+              }
+
+              return 0;
+
+          });
+               
+         
+          
+          
+                  for (let i = 0; i < usuarios.length; i++) {
+                      let divtext = document.createElement('div');
+                      divtext.innerText = `${usuarios[i].usuarioLog} - ${usuarios[i].puntaje}`;
+                      divM.appendChild(divtext);
+                      
+                  }
+                  
+        }
+
+    }
+
+
+
+
+  const contenedor = document.querySelector(".contenedor");
+  
+    const limpiarAntes = () => {
+      
+      while (contenedor.firstChild) {
+        //The list is LIVE so it will re-index each call
+        contenedor.removeChild(contenedor.firstChild);
+    }
+
+    while (divM.firstChild) {
+      //The list is LIVE so it will re-index each call
+      divM.removeChild(divM.firstChild);
+  }
+
+    }
 
   
 
 
-  const contenedor = document.querySelector(".contenedor");
+  let images;
+      const crearCarta =  async () => {
 
-      const crearCarta =  () => {
+        limpiarAntes();
+        mostrarUsuarios();
+        
+        const resolv = await fetch('../images/images.json');
+        const imagen =  await resolv.json();
+
+         images = [...imagen, ...imagen];
+
+        images.sort( () => Math.random() - 0.5);
+
 
         for (let i = 0; i < images.length; i++) {
           let div = document.createElement('div');
@@ -72,7 +138,11 @@
               contenedor.appendChild(div);
 
 
+
+
         } 
+       
+
       }
 
       const mostrarCartas = () => {
@@ -93,9 +163,10 @@
             todas[k].setAttribute('class', 'carta');
            
         }
+        habilitarEvento();
         },3000);
 
-        habilitarEvento();
+        
       }
 
 
@@ -186,10 +257,23 @@
         const establecerAnteriores = () => {
           let muestra = comparar[2];
 
-          if(comparar[0].nombre === comparar[1].nombre){
+       
+          if(comparar[0].id === comparar[1].id){
+            if(comparar[0].nombre === comparar[2].nombre){
+              console.log("paralo");
+              guardarCoinsidencia(comparar[0], comparar[2]);
+            }else{
+              comparar[1].div.removeAttribute('class', 'cartaEfecto');
+              comparar[1].div.setAttribute('class', 'carta');
+              comparar = []; 
+              habilitarEvento();
+              comparar[0] = muestra;
+            }
+           
+          }else if(comparar[0].nombre === comparar[1].nombre){
             console.log(" coinsiden");
 
-            guardarCoinsidencia();
+            guardarCoinsidencia(comparar[0], comparar[1]);
 
             comparar[0] = muestra;
           }else{
@@ -242,7 +326,7 @@
                   }else if(comparar[0].nombre === comparar[1].nombre){
                     console.log(" coinsiden");
                     
-                    guardarCoinsidencia();
+                    guardarCoinsidencia(comparar[0], comparar[1]);
 
                   }else{
                     console.log("no coinsiden");
@@ -330,26 +414,61 @@
 
         
 
-      const guardarCoinsidencia = () => {
+      const guardarCoinsidencia = (carta1, carta2) => {
 
 //guardar el div en otro arreglo para evitar q le asigne el arreglo a ese.
 
-        comparar[0].div.removeEventListener('click', voltearCarta);
-        comparar[0].div.setAttribute('class', 'carta cartaEfecto encontrada');
-        comparar[1].div.removeEventListener('click', voltearCarta);
-        comparar[1].div.setAttribute('class', 'carta cartaEfecto encontrada');
+        console.log(carta1);
+
+        carta1.div.removeEventListener('click', voltearCarta);
+        carta1.div.setAttribute('class', 'carta cartaEfecto encontrada');
+        carta2.div.removeEventListener('click', voltearCarta);
+        carta2.div.setAttribute('class', 'carta cartaEfecto encontrada');
 
 
-        encontradas.push(comparar[0] , comparar[1]);
+        encontradas.push(carta1 , carta2);
         console.log(encontradas);
 
         comparar=[];
 
         habilitarEvento();
         if(encontradas.length === 20){
-        let result = detenerCronometro();
+        let puntaje = detenerCronometro();
           
-          console.log("Felicitaciones, tu resultado es de :", result);
+          console.log("Felicitaciones, tu resultado es de :", puntaje);
+
+              Swal.fire({
+                title: 'Felicitaciones',
+                text: `Tu tiempo fue de : ${puntaje}`,
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Entendido',
+                allowOutsideClick: false
+              }).then((result) => {
+                if (!result.isConfirmed) {
+                  Swal.fire(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                  )
+                }else{
+                  reset();
+                  
+                  let resultado = document.querySelector(".usuario");
+                  
+
+                  let todos = [...usuarios, {puntaje, usuarioLog}]
+
+                  localStorage.setItem("usuarios", JSON.stringify(todos));
+
+                  resultado.innerHTML = "";
+                  btnRegistrar.removeAttribute('disabled', true);
+                  encontradas = [];
+                  crearCarta();
+
+
+                }
+              })
         }
         
       }

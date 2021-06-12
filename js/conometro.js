@@ -55,5 +55,5 @@ function reset () {
            isMarch = false;
            }
         acumularTime = 0;
-        pantalla.innerHTML = "00 : 00 : 00 : 00";
+        pantalla.innerHTML = " 00 : 00 : 00";
         }
